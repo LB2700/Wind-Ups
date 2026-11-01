@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 52-supabase-cli
   workflow_dispatch:
 
 jobs:
@@ -15,8 +16,16 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
       SUPABASE_PROJECT_ID: ${{ secrets.STAGING_PROJECT_ID }}
 
+    
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm" # Caches node_modules for high-speed runs
 
       - uses: supabase/setup-cli@v1
         with:
