@@ -26,14 +26,14 @@ jobs:
           npm run test:unit
 
       - name: Start Supabase local development setup
-        run: supabase db start
+        run: npx supabase db start
 
       - name: Verify schema coverage
-        run: supabase db diff --strict-coverage
-        
+        run: npx supabase db diff --strict-coverage
+
       - name: Verify generated types are checked in
         run: |
-          supabase gen types typescript --local > types.gen.ts
+          npx supabase gen types typescript --local > types.gen.ts
           if ! git diff --ignore-space-at-eol --exit-code --quiet types.gen.ts; then
             echo "Detected uncommitted changes after build. See status below:"
             git diff
