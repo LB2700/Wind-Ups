@@ -33,6 +33,9 @@ jobs:
       - name: Start Supabase local development setup
         run: supabase db start
 
+      - name: Reset database with migrations and seed
+        run: supabase db reset
+
       - name: Verify schema coverage
         run: supabase db diff --strict-coverage
         
@@ -44,6 +47,19 @@ jobs:
             git diff
             exit 1
           fi
+
+      - name: Set integration test environment
+        shell: bash
+        run: |
+          eval "$(supabase status --output env)"
+          {
+            echo "SITE_URL=http://localhost:4321"
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+          } >> "$GITHUB_ENV"
+      
+      - name: Run integration tests
+        run: npm run test:integration
 
       - name: Build docker image
         run: |

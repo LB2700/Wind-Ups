@@ -49,10 +49,26 @@ All commands are run from the root of the project, from a terminal:
 | `npm run dev`                                                     | Starts local dev server at `localhost:4321`      |
 | `npm run build`                                                   | Build your production site to `./dist/`          |
 | `npm run preview`                                                 | Preview your build locally, before deploying     |
+| `npm run test:integration`                                        | Runs auth integration tests against local Supabase |
 | `npm run astro ...`                                               | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help`                                         | Get help using the Astro CLI                     |
 | `docker build -t <image-name> .`                                  | Build a production Docker image                   |
-| `docker run -d -p 4321:4321 --name <container-name> <image-name>` | Build docker container based on image           |
+| `docker run -d -p 4321:4321 --env-file .env.local -e SUPABASE_URL=http://host.docker.internal:54321 --name <container-name> <image-name>` | Run the image against local Supabase |
+
+The integration tests load `.env.local` when it exists, log `SITE_URL` and `SUPABASE_URL`, and refuse to run against a non-local Supabase host. They verify database access and create then remove a temporary auth user.
+
+### Docker development with a fresh local database
+
+The application image connects to Supabase; it does not contain the database or Supabase Auth/API services. Start a fresh local Supabase database with the project migrations and seed data before running the app:
+
+```sh
+npx supabase start
+npx supabase db reset
+docker build -t wind-ups .
+docker run -d -p 4321:4321 --env-file .env.local -e SUPABASE_URL=http://host.docker.internal:54321 --name wind-ups wind-ups
+```
+
+Set `SUPABASE_PUBLISHABLE_KEY` in `.env.local` to the local publishable key (or legacy anon key) reported by `npx supabase status`. The Dockerfile defaults `SUPABASE_URL` to the local Supabase API; the `-e` option overrides it explicitly for this run. Environment variables passed at runtime override Dockerfile defaults, so deployments can provide their own Supabase URL and key without embedding credentials in the image.
 
 
 ## Supabase sign-up configuration
