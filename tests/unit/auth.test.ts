@@ -54,6 +54,38 @@ describe('getCurrentUser', () => {
 		expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' });
 	});
 
+	it.each(['refresh_token_already_used', 'session_expired'])(
+		'treats %s as a signed-out visitor',
+		async (code) => {
+			mockGetUser.mockResolvedValue({
+				data: { user: null },
+				error: {
+					name: 'AuthApiError',
+					code,
+					message: 'The auth session has expired.',
+				},
+			});
+
+			await expect(getCurrentUser(makeContext())).resolves.toBeNull();
+			expect(mockSignOut).toHaveBeenCalledWith({ scope: 'local' });
+		},
+	);
+
+	it('throws when local sign-out fails while clearing a dead refresh token', async () => {
+		const error = new Error('Could not clear the local session');
+		mockGetUser.mockResolvedValue({
+			data: { user: null },
+			error: {
+				name: 'AuthApiError',
+				code: 'refresh_token_not_found',
+				message: 'Invalid Refresh Token: Refresh Token Not Found',
+			},
+		});
+		mockSignOut.mockResolvedValue({ error });
+
+		await expect(getCurrentUser(makeContext())).rejects.toBe(error);
+	});
+
 	it('still throws unrelated auth errors', async () => {
 		const error = {
 			name: 'AuthApiError',
