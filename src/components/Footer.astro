@@ -2,26 +2,76 @@
 import packageJson from '../../package.json';
 
 const today = new Date();
+const DEBUG_INFO = true;
 ---
 
 <footer>
 	<p>&copy; {today.getFullYear()} Luke Bermingham. All rights reserved.</p>
 	<p class="site-info">{packageJson.name} {packageJson.version}</p>
 	<a href="https://github.com/LB2700/cs4421-astro-blog" target="_blank">
-	<span class="sr-only">Follow my github</span>
-	<svg viewBox="0 0 16 16" aria-hidden="true" width="2.5rem" height="2.5rem" astro-icon="social/github"
-		><path
-			fill="currentColor"
-			d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-		></path></svg>
+		<span class="sr-only">Follow my github</span>
+		<svg viewBox="0 0 16 16" aria-hidden="true" width="2.5rem" height="2.5rem" astro-icon="social/github"
+			><path
+				fill="currentColor"
+				d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+			></path></svg>
 	</a>
+	
+	{DEBUG_INFO && (<div id="debug-info">
+		<table>
+			<caption>Debug info</caption>
+			<tbody>
+				<tr>
+					<th scope="row">SITE_URL</th>
+					<td>{process.env.SITE_URL}</td>
+				</tr>
+				<tr>
+					<th scope="row">SUPABASE_URL</th>
+					<td>{process.env.SUPABASE_URL}</td>
+				</tr>
+				<tr>
+					<th scope="row">SUPABASE_PUBLISHABLE_KEY</th>
+					<td>{process.env.SUPABASE_PUBLISHABLE_KEY}</td>
+				</tr>
+			</tbody>
+		</table>
+			<style lang="scss">
+			@use "../styles/_variables.scss" as *;
+
+			#debug-info table {
+				margin: 4rem auto 0;
+				text-align: left;
+				border-spacing: 0.75rem 0.25rem;
+				width: fit-content;
+			}
+
+			#debug-info tbody {
+				position: relative;
+				left: 3rem;
+			}
+
+			#debug-info th,
+			#debug-info td {
+				font-size: 1rem;
+			}
+
+			#debug-info td {
+				overflow-wrap: anywhere;
+				padding-left: 10rem;
+			}
+		</style>
+	</div>
+	)}
 </footer>
+
+
+
 <style lang="scss">
 
 @use "../styles/_variables.scss" as *;
 
 	footer {
-		padding: 2em 1em 6em 1em;
+		padding: 2em 1em 1em 1em;
 		background: linear-gradient(var(--gray-gradient)) no-repeat;
 		border-top: 1px solid $banner-liner;
 		color: rgb(var(--gray));
@@ -31,4 +81,5 @@ const today = new Date();
 		margin-top: 0.5em;
 		font-size: 0.875em;
 	}
+
 </style>

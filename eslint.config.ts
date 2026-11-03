@@ -22,7 +22,7 @@ export default [
       "@typescript-eslint": tsPlugin,
     },
 		rules: {
-			"no-console": "error",
+			"no-console": ["error", { allow: ["info"] }],
 			// override/add rules settings here, such as:
 			// "astro/no-set-html-directive": "error"
 		},

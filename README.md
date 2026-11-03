@@ -49,10 +49,46 @@ All commands are run from the root of the project, from a terminal:
 | `npm run dev`                                                     | Starts local dev server at `localhost:4321`      |
 | `npm run build`                                                   | Build your production site to `./dist/`          |
 | `npm run preview`                                                 | Preview your build locally, before deploying     |
+| `npm run test:integration`                                        | Runs auth integration tests against local Supabase |
 | `npm run astro ...`                                               | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help`                                         | Get help using the Astro CLI                     |
 | `docker build -t <image-name> .`                                  | Build a production Docker image                   |
-| `docker run -d -p 4321:4321 --name <container-name> <image-name>` | Build docker container based on image           |
+| `docker run -d -p 4321:4321 --env-file .env.local -e SUPABASE_URL=http://host.docker.internal:54321 --name <container-name> <image-name>` | Run the image against local Supabase |
+
+The integration tests load `.env.local` when it exists, log `SITE_URL` and `SUPABASE_URL`, and refuse to run against a non-local Supabase host. They verify database access and create then remove a temporary auth user.
+
+### Docker development with a fresh local database
+
+The application image connects to Supabase; it does not contain the database or Supabase Auth/API services. Start a fresh local Supabase database with the project migrations and seed data before running the app:
+
+```sh
+npx supabase start
+npx supabase db reset
+docker build -t wind-ups .
+docker run -d -p 4321:4321 --env-file .env.local -e SUPABASE_URL=http://host.docker.internal:54321 --name wind-ups wind-ups
+```
+
+Set `SUPABASE_PUBLISHABLE_KEY` in `.env.local` to the local publishable key (or legacy anon key) reported by `npx supabase status`. The `-e` option overrides the image's `SUPABASE_URL` so the container connects to local Supabase.
+
+### Build and run the staging image
+
+`Dockerfile.staging` builds the app with its staging Supabase URL. Provide the staging app URL and publishable key at runtime in a git ignored `.env.staging` file:
+
+```dotenv
+SITE_URL=https://<staging-app-host>
+SUPABASE_PUBLISHABLE_KEY=<staging-publishable-key>
+```
+
+Do not include `SUPABASE_URL` in `.env.staging`: the `Dockerfile.staging` default points to staging, and an env-file value would override it. Do not use a `service_role` or secret key in the app container.
+
+Build and run the staging image on port 4322, leaving port 4321 available for local development:
+
+```sh
+docker build -f Dockerfile.staging -t wind-ups:staging .
+docker run -d -p 4322:4321 --env-file .env.staging --name wind-ups-staging wind-ups:staging
+```
+
+To replace an existing container with this name, remove it first with `docker rm -f wind-ups-staging`. Runtime environment variables override Dockerfile defaults.
 
 
 ## Supabase sign-up configuration
