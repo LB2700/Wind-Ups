@@ -68,7 +68,27 @@ docker build -t wind-ups .
 docker run -d -p 4321:4321 --env-file .env.local -e SUPABASE_URL=http://host.docker.internal:54321 --name wind-ups wind-ups
 ```
 
-Set `SUPABASE_PUBLISHABLE_KEY` in `.env.local` to the local publishable key (or legacy anon key) reported by `npx supabase status`. The Dockerfile defaults `SUPABASE_URL` to the local Supabase API; the `-e` option overrides it explicitly for this run. Environment variables passed at runtime override Dockerfile defaults, so deployments can provide their own Supabase URL and key without embedding credentials in the image.
+Set `SUPABASE_PUBLISHABLE_KEY` in `.env.local` to the local publishable key (or legacy anon key) reported by `npx supabase status`. The `-e` option overrides the image's `SUPABASE_URL` so the container connects to local Supabase.
+
+### Build and run the staging image
+
+`Dockerfile.staging` builds the app with its staging Supabase URL. Provide the staging app URL and publishable key at runtime in a git ignored `.env.staging` file:
+
+```dotenv
+SITE_URL=https://<staging-app-host>
+SUPABASE_PUBLISHABLE_KEY=<staging-publishable-key>
+```
+
+Do not include `SUPABASE_URL` in `.env.staging`: the `Dockerfile.staging` default points to staging, and an env-file value would override it. Do not use a `service_role` or secret key in the app container.
+
+Build and run the staging image on port 4322, leaving port 4321 available for local development:
+
+```sh
+docker build -f Dockerfile.staging -t wind-ups:staging .
+docker run -d -p 4322:4321 --env-file .env.staging --name wind-ups-staging wind-ups:staging
+```
+
+To replace an existing container with this name, remove it first with `docker rm -f wind-ups-staging`. Runtime environment variables override Dockerfile defaults.
 
 
 ## Supabase sign-up configuration
