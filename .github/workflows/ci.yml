@@ -19,7 +19,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.122.0
 
       - name: Install Project Dependencies
         run: npm ci # Clean, deterministic install from package-lock.json
@@ -31,7 +31,7 @@ jobs:
           npm run test:unit
 
       - name: Start Supabase local development setup
-        run: supabase db start
+        run: supabase start
 
       - name: Reset database with migrations and seed
         run: supabase db reset
@@ -52,6 +52,10 @@ jobs:
         shell: bash
         run: |
           eval "$(supabase status --output env)"
+          if [[ -z "$API_URL" || -z "$PUBLISHABLE_KEY" ]]; then
+            echo "Could not read the local Supabase API URL and publishable key."
+            exit 1
+          fi
           {
             echo "SITE_URL=http://localhost:4321"
             echo "SUPABASE_URL=$API_URL"
