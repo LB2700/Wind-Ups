@@ -10,7 +10,7 @@ RUN npm run build
 FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321
-ENV SUPABASE_URL=http://host.docker.internal:54321
+ENV SUPABASE_URL=https://eoerbturaptgtoplhjnx.supabase.co
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
