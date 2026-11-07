@@ -48,6 +48,7 @@ export class EcsStack extends cdk.Stack {
 
     const service = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AstroService', {
       vpc,
+      desiredCount: 0, // temporary shutdown
       assignPublicIp: true,
       taskSubnets: { subnetType: ec2.SubnetType.PUBLIC },
       certificate,
