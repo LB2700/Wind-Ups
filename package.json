@@ -6,9 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "node --env-file=.env.local ./node_modules/astro/bin/astro.mjs dev",
+    "dev": "node --env-file=.env.local --import ./scripts/supabase-startup.mjs ./node_modules/astro/bin/astro.mjs dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "node --env-file-if-exists=.env.local --import ./scripts/supabase-startup.mjs ./node_modules/astro/bin/astro.mjs preview",
     "astro": "astro",
     "check": "astro check",
     "lint": "eslint .",

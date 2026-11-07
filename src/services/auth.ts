@@ -57,6 +57,11 @@ export async function signInUser(
 	return { error };
 }
 
+export async function signOutUser(context: SupabaseRequestContext) {
+	const supabase = createServerClient(context);
+	return supabase.auth.signOut({ scope: 'global' });
+}
+
 export async function getCurrentUser(context: SupabaseRequestContext) {
 	const supabase = createServerClient(context);
 	const {

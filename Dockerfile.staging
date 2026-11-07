@@ -14,9 +14,10 @@ ENV SUPABASE_URL=https://azxrlxlyqjohiadnfflk.supabase.co
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/scripts ./scripts
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
 CMD wget --no-verbose --tries=1 --spider http://localhost:4321/api/health || exit 1
 
 EXPOSE 4321
-CMD ["node", "./dist/server/entry.mjs"]
+CMD ["node", "--import", "./scripts/supabase-startup.mjs", "./dist/server/entry.mjs"]

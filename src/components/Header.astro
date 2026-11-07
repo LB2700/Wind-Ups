@@ -1,10 +1,34 @@
 ---
 import { SITE_TITLE } from '../consts';
-import HeaderLink from './HeaderLink.astro';
 import Logo from './Logo.astro';
 import SearchBar from './SearchBar.astro';
 import ActionButton from './ActionButton.astro';
+import { getCurrentUser } from '../services/auth';
 
+interface Props {
+	user?: Awaited<ReturnType<typeof getCurrentUser>>;
+}
+
+const { user: providedUser } = Astro.props;
+let user = providedUser;
+if (user === undefined) {
+	try {
+		user = await getCurrentUser({
+			request: Astro.request,
+			cookies: Astro.cookies,
+		});
+	} catch (error) {
+		console.error(
+			JSON.stringify({
+				event: 'header_user_lookup_failed',
+				error_name: error instanceof Error ? error.name : 'UnknownError',
+				error_message: error instanceof Error ? error.message : 'Non-Error thrown',
+			}),
+		);
+		user = null;
+	}
+}
+const logoutFailed = Astro.url.searchParams.get('error') === 'logout-failed';
 ---
 
 <header>
@@ -12,8 +36,18 @@ import ActionButton from './ActionButton.astro';
 		<Logo><a href="/">{SITE_TITLE}</a></Logo>
 		<SearchBar />
 		<div class="account-actions">
-			<ActionButton href="/auth/login" variant="secondary">Log in</ActionButton>
-			<ActionButton href="/auth/signup" variant="primary">Sign up</ActionButton>
+			{user ? (
+				<form method="POST" action="/api/logout">
+					<input type="hidden" name="returnTo" value={`${Astro.url.pathname}${Astro.url.search}`} />
+					<button class="action-button action-button--secondary" type="submit">Sign out</button>
+				</form>
+			) : (
+				<>
+					<ActionButton href="/auth/login" variant="secondary">Log in</ActionButton>
+					<ActionButton href="/auth/signup" variant="primary">Sign up</ActionButton>
+				</>
+			)}
+			{logoutFailed && <p class="account-error" role="alert">Could not sign out. Please try again.</p>}
 		</div>
 		<!-- <h2><a href="/">{SITE_TITLE}</a></h2> -->
 
@@ -72,9 +106,20 @@ import ActionButton from './ActionButton.astro';
 	}
 	.account-actions {
 		display: flex;
+		flex-wrap: wrap;
 		justify-self: end;
 		align-items: center;
+		justify-content: flex-end;
 		gap: 0.6rem;
+	}
+	.account-actions form {
+		margin: 0;
+	}
+	.account-error {
+		flex-basis: 100%;
+		margin: 0;
+		color: #a32020;
+		text-align: right;
 	}
 	nav a {
 		padding: 1em 0.5em;

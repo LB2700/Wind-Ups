@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 import {
 	getCurrentUser,
+	signOutUser,
 	signInUser,
 	signUpNewUser,
 } from '../../src/services/auth';
@@ -157,5 +158,20 @@ describe('auth service integration with local Supabase', () => {
 
 		const user = await getCurrentUser(makeContext(signInContext.cookieHeader()).context);
 		expect(user?.email).toBe(getTestEmail());
+	});
+
+	it('clears the session cookies when signing out', async () => {
+		const signInContext = makeContext();
+		const { error: signInError } = await signInUser(
+			{ email: getTestEmail(), password: testPassword },
+			signInContext.context,
+		);
+		expect(signInError).toBeNull();
+
+		const signOutContext = makeContext(signInContext.cookieHeader());
+		const { error: signOutError } = await signOutUser(signOutContext.context);
+
+		expect(signOutError).toBeNull();
+		expect(signOutContext.cookieHeader()).toBe('');
 	});
 });

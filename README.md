@@ -57,6 +57,8 @@ All commands are run from the root of the project, from a terminal:
 
 The integration tests load `.env.local` when it exists, log `SITE_URL` and `SUPABASE_URL`, and refuse to run against a non-local Supabase host. They verify database access and create then remove a temporary auth user.
 
+Before starting the development, preview, or Docker server, the app checks that it can query the Supabase `posts` table and logs the result. If Supabase is unavailable, the check logs an error but does not prevent the app from starting.
+
 ### Docker development with a fresh local database
 
 The application image connects to Supabase; it does not contain the database or Supabase Auth/API services. Start a fresh local Supabase database with the project migrations and seed data before running the app:
