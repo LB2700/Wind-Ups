@@ -23,7 +23,7 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.117.3",
+    "@supabase/supabase-js": "^2.119.0",
     "astro": "^7.4.4",
     "jiti": "^2.7.0",
     "sass": "^1.107.0",
